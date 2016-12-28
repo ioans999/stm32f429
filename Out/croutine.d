@@ -1,0 +1,12 @@
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\croutine.c
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\include\FreeRTOS.h
+..\out\croutine.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stddef.h
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\include\projdefs.h
+..\out\croutine.o: ..\inc\FreeRTOSConfig.h
+..\out\croutine.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\include\portable.h
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\portable\RVDS\ARM_CM3\portmacro.h
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\include\mpu_wrappers.h
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\include\task.h
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\include\list.h
+..\out\croutine.o: ..\Utilities\FreeRTOSV7.3.0\include\croutine.h

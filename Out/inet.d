@@ -1,0 +1,12 @@
+..\out\inet.o: ..\Utilities\lwip-1.4.1\src\core\ipv4\inet.c
+..\out\inet.o: ..\Utilities\lwip-1.4.1\src\include\lwip/opt.h
+..\out\inet.o: ..\inc\lwipopts.h
+..\out\inet.o: ..\Utilities\lwip-1.4.1\src\include\lwip/debug.h
+..\out\inet.o: ..\Utilities\lwip-1.4.1\src\include\lwip/arch.h
+..\out\inet.o: ..\Utilities\lwip-1.4.1\port\STM32F4x7\arch/cc.h
+..\out\inet.o: ..\Utilities\lwip-1.4.1\port\STM32F4x7\arch/cpu.h
+..\out\inet.o: ..\Utilities\lwip-1.4.1\src\include\lwip/opt.h
+..\out\inet.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdio.h
+..\out\inet.o: ..\Utilities\lwip-1.4.1\src\include\ipv4\lwip/inet.h
+..\out\inet.o: ..\Utilities\lwip-1.4.1\src\include\lwip/def.h
+..\out\inet.o: ..\Utilities\lwip-1.4.1\src\include\ipv4\lwip/ip_addr.h

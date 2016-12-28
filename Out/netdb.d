@@ -1,0 +1,10 @@
+..\out\netdb.o: ..\Utilities\lwip-1.4.1\src\api\netdb.c
+..\out\netdb.o: ..\Utilities\lwip-1.4.1\src\include\lwip/netdb.h
+..\out\netdb.o: ..\Utilities\lwip-1.4.1\src\include\lwip/opt.h
+..\out\netdb.o: ..\inc\lwipopts.h
+..\out\netdb.o: ..\Utilities\lwip-1.4.1\src\include\lwip/debug.h
+..\out\netdb.o: ..\Utilities\lwip-1.4.1\src\include\lwip/arch.h
+..\out\netdb.o: ..\Utilities\lwip-1.4.1\port\STM32F4x7\arch/cc.h
+..\out\netdb.o: ..\Utilities\lwip-1.4.1\port\STM32F4x7\arch/cpu.h
+..\out\netdb.o: ..\Utilities\lwip-1.4.1\src\include\lwip/opt.h
+..\out\netdb.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdio.h
