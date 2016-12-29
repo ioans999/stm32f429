@@ -93,7 +93,17 @@ extern ETH_DMA_Rx_Frame_infos *DMA_RX_FRAME_infos;
 static void ethernetif_input( void * pvParameters );
 static void arp_timer(void *arg);
 
+static uint8_t mac_addrs_cnf[6];
 
+void set_mac_addr_config(uint8_t *mac)
+{
+	mac_addrs_cnf[0]=mac[0];
+	mac_addrs_cnf[1]=mac[1];
+	mac_addrs_cnf[2]=mac[2];
+	mac_addrs_cnf[3]=mac[3];
+	mac_addrs_cnf[4]=mac[4];
+	mac_addrs_cnf[5]=mac[5];
+}
 /**
 * In this function, the hardware should be initialized.
 * Called from ethernetif_init().
@@ -109,13 +119,13 @@ static void low_level_init(struct netif *netif)
   netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
   /* set netif MAC hardware address */
-  netif->hwaddr[0] =  MAC_ADDR0;
-  netif->hwaddr[1] =  MAC_ADDR1;
-  netif->hwaddr[2] =  MAC_ADDR2;
-  netif->hwaddr[3] =  MAC_ADDR3;
-  netif->hwaddr[4] =  MAC_ADDR4;
-  netif->hwaddr[5] =  MAC_ADDR5;
-
+  netif->hwaddr[0] = mac_addrs_cnf[0];
+  netif->hwaddr[1] = mac_addrs_cnf[1];
+  netif->hwaddr[2] = mac_addrs_cnf[2];
+  netif->hwaddr[3] = mac_addrs_cnf[3];
+  netif->hwaddr[4] = mac_addrs_cnf[4];
+  netif->hwaddr[5] = mac_addrs_cnf[5];
+  
   /* set netif maximum transfer unit */
   netif->mtu = 1500;
 

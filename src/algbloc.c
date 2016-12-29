@@ -112,7 +112,7 @@ uint32_t CicleTime;
 uint8_t modbus_lost_flag;
 uint8_t modbus_lost_flag_u4;
 
-
+float test_float[128];
 
 void vAlg_block_Task(void * pvParameters)
 {
@@ -666,14 +666,8 @@ void AlgLostModbusPacketU4(uint8_t n)
 }
 
 
-void read_cnf_adc_str2float(char * w1,char * w2,char * w3)
+void write_cnf_adc_float(uint16_t num, float a, float b)
 {
-	uint8_t i;
-	
-	if ((w1[0]!=0)&&(w2[0]!=0)&&(w3[0]!=0))
-	{
-		i=atoi(w1);
-	  adc_func_int2float.func_a[i]=atof(w2);
-	  adc_func_int2float.func_b[i]=atof(w3);
-	}
+	adc_func_int2float.func_a[num]=a;
+	adc_func_int2float.func_b[num]=b;
 }

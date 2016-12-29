@@ -44,9 +44,10 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void LwIP_Init(void);
+void LwIP_Init(void); 
 void LwIP_DHCP_task(void * pvParameters);
-
+void set_ipv4_config(uint8_t *ip_in);
+	 
 #ifdef __cplusplus
 }
 #endif

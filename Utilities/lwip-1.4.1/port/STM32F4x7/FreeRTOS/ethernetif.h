@@ -6,7 +6,7 @@
 #include "lwip/netif.h"
 
 err_t ethernetif_init(struct netif *netif);
-
+void set_mac_addr_config(unsigned char *mac);
 
 
 #endif 

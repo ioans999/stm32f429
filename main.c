@@ -39,36 +39,22 @@
 #include "usart.h"
 #include "udp_server.h"
 #include <string.h>
+#include <math.h>
 
-/*--------------- Tasks Priority -------------*/
-#define MAIN_TASK_PRIO   ( tskIDLE_PRIORITY + 1 )
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
+
 void Main_task(void * pvParameters);
-void SystemInit_FmcSdram(void);
-void tasktest(void * pvParameters);
-/* Private functions ---------------------------------------------------------*/
 
-/**
-  * @brief  Main program.
-  * @param  None
-  * @retval None
-  */
+
 int main(void)
 {
-	uint32_t i;
-  /* Configures the priority grouping: 4 bits pre-emption priority */
-	  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
   /* Init task */
-  xTaskCreate(Main_task,(int8_t *)"Main", configMINIMAL_STACK_SIZE * 1, NULL,tskIDLE_PRIORITY + 2, NULL);
+  xTaskCreate(Main_task,(int8_t *)"Main", configMINIMAL_STACK_SIZE * 5, NULL,tskIDLE_PRIORITY + 2, NULL);
 
   /* Start scheduler */
   vTaskStartScheduler();
 
   /* We should never get here as control is now taken by the scheduler */
   for( ;; );
-
 }
 
 /**
@@ -78,58 +64,31 @@ int main(void)
   */
 void Main_task(void * pvParameters)
 {
-	volatile uint8_t * Ptr8;
-	volatile uint16_t * Ptr16;
-	int i;
+	uart_print( "\r\nStart STM32F429\r\n",strlen("\r\nStart STM32F429\r\n"));	
 	
-	//rc_config_start();
-	//uart_print( "\r\nStart STM32F417\r\n",strlen("\r\nStart STM32F417\r\n"));	
-  /* configure Ethernet (GPIOs, clocks, MAC, DMA) */ 
-  vTaskDelay(1000);
-  ETH_BSP_Config();
-	LwIP_Init();
-	xTaskCreate(tasktest,(int8_t *)"tasktest", configMINIMAL_STACK_SIZE * 5, NULL,MAIN_TASK_PRIO, NULL);
-  //Ptr8=(uint8_t *)0xC0000000;
-	//for(i=0;i<1000;i++)
-	//{
-	//	*Ptr8=(uint8_t ) i;
-	//	Ptr8++;
-	//}
-	
- // Ptr16=(uint16_t *)0xC0000000;
-//for(i=0;i<16777216;i++)
-//	{
-//		*Ptr16=(uint16_t ) i;
-//		Ptr16++;
-//	}
-	
+	/* configure global parameters (usart, IP, MAC, ADC converter)*/ ;
+	rc_config_start();
 
-  for( ;; )
+  /* configure Ethernet (GPIOs, clocks, MAC, DMA) */ ;
+  ETH_BSP_Config();
+	
+	LwIP_Init();
+	
+	//xTaskCreate(tasktest,(int8_t *)"tasktest", configMINIMAL_STACK_SIZE * 1, NULL, tskIDLE_PRIORITY + 1, NULL);
+	
+	
+  //Ptr16=(uint16_t *)0xC0000000;
+	for( ;; )
   {
-      vTaskDelete(NULL);
+		vTaskDelete(NULL);
   }
 }
 
 
 void tasktest(void * pvParameters)
 {
-	FATFS   fscnf;
-  FIL     filecnf;
-  volatile FRESULT ferr;
-	volatile uint8_t w1[20];
-	volatile uint8_t w2[20];
-	volatile uint8_t w3[20];
-	volatile uint8_t str[60];
   for( ;; )
   {
-		ferr = f_mount(0, &fscnf);
-		strcpy((char*)w1,"0:/RC.CNF");
-		ferr = f_open(&filecnf,(TCHAR*)w1,  FA_READ);
-		if (f_gets((TCHAR*)str, sizeof(str), &filecnf)==0)
-		{
-			
-		}
-		f_close(&filecnf);
 		vTaskDelay(1000);
   }
 }
@@ -150,7 +109,7 @@ void vApplicationStackOverflowHook ( xTaskHandle pxTask, signed char *pcTaskName
   */
 void Delay(uint32_t nCount) 
 {
-   //vTaskDelay(nCount);
+   vTaskDelay(nCount);
 }
 
 

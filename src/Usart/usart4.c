@@ -309,7 +309,7 @@ void InitUsart_rs485_n4(uint32_t baudrate)
 
 void uart_print(char *str, uint8_t ln)
 {
-  volatile int i = 0;
+  //volatile int i = 0;
 
   //for(i=0;i<ln;i++)
   {

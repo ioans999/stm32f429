@@ -119,7 +119,7 @@
 /** @addtogroup STM32F4xx_System_Private_Includes
   * @{
   */
-
+#include "arm_math.h"
 #include "stm32f4xx.h"
 
 /**

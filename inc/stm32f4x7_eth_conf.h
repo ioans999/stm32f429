@@ -48,8 +48,8 @@
 #define USE_Delay
 
 #ifdef USE_Delay
-  #include "main.h"              /* Header file where the Delay function prototype is exported */
-  #define _eth_delay_    Delay   /* User can provide more timing precise _eth_delay_ function 
+  #include "main.h"               /* Header file where the Delay function prototype is exported */
+  #define _eth_delay_    Delay    /* User can provide more timing precise _eth_delay_ function 
                                    in this example we use vTaskDelay of FreeRTOS*/
 #else
   #define _eth_delay_    ETH_Delay /* Default _eth_delay_ function with less precise timing */

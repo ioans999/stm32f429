@@ -26,11 +26,11 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "main.h"
 #include "lwip/mem.h"
 #include "lwip/memp.h"
 #include "lwip/dhcp.h"
 #include "ethernetif.h"
-#include "main.h"
 #include "netconf.h"
 #include "tcpip.h"
 #include <stdio.h>
@@ -43,9 +43,20 @@
 /* Private variables ---------------------------------------------------------*/
 struct netif xnetif; /* network interface structure */
 extern __IO uint32_t  EthStatus;
-#ifdef USE_DHCP
+#ifdef USE_DHCP 
 __IO uint8_t DHCP_state;
 #endif /* USE_DHCP */
+static uint8_t  IP4_ADDR_IN_cnf[4];
+
+
+void set_ipv4_config(uint8_t *ip_in)
+{
+	IP4_ADDR_IN_cnf[0]=ip_in[0];
+	IP4_ADDR_IN_cnf[1]=ip_in[1];
+	IP4_ADDR_IN_cnf[2]=ip_in[2];
+	IP4_ADDR_IN_cnf[3]=ip_in[3];
+}
+
 
 /* Private functions ---------------------------------------------------------*/
 /**
@@ -71,7 +82,7 @@ void LwIP_Init(void)
   netmask.addr = 0;
   gw.addr = 0;
 #else
-  IP4_ADDR(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
+	IP4_ADDR(&ipaddr, IP4_ADDR_IN_cnf[0], IP4_ADDR_IN_cnf[1], IP4_ADDR_IN_cnf[2], IP4_ADDR_IN_cnf[3]);
   IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
   IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 #endif  

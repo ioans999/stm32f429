@@ -75,7 +75,7 @@ extern "C" {
 #endif
 
 /*-----------------------------------------------------------
- * Port specific definitions.
+ * Port specific definitions.  
  *
  * The settings in this file configure FreeRTOS correctly for the
  * given hardware and compiler.
@@ -100,13 +100,13 @@ extern "C" {
 	typedef unsigned portLONG portTickType;
 	#define portMAX_DELAY ( portTickType ) 0xffffffff
 #endif
-/*-----------------------------------------------------------*/
+/*-----------------------------------------------------------*/	
 
 /* Architecture specifics. */
 #define portSTACK_GROWTH			( -1 )
-#define portTICK_RATE_MS			( ( portTickType ) 1000 / configTICK_RATE_HZ )
+#define portTICK_RATE_MS			( ( portTickType ) 1000 / configTICK_RATE_HZ )		
 #define portBYTE_ALIGNMENT			8
-/*-----------------------------------------------------------*/
+/*-----------------------------------------------------------*/	
 
 /* Scheduler utilities. */
 extern void vPortYield( void );
@@ -127,6 +127,12 @@ extern void vPortExitCritical( void );
 #define portEXIT_CRITICAL()						vPortExitCritical()
 #define portSET_INTERRUPT_MASK_FROM_ISR()		ulPortSetInterruptMask()
 #define portCLEAR_INTERRUPT_MASK_FROM_ISR(x)	vPortClearInterruptMask(x)
+
+/*-----------------------------------------------------------*/
+
+/* There are an uneven number of items on the initial stack, so 
+portALIGNMENT_ASSERT_pxCurrentTCB() will trigger false positive asserts. */
+#define portALIGNMENT_ASSERT_pxCurrentTCB ( void )
 /*-----------------------------------------------------------*/
 
 /* Tickless idle/low power functionality. */
