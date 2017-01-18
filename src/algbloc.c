@@ -2,6 +2,7 @@
 
 /* ------------------------ STM32F4xx lib----------------------------- */
 #include "stm32f4xx.h"
+#include "arm_math.h"
 
 /* ------------------------ FreeRTOS includes ----------------------------- */
 #include "FreeRTOS.h"
@@ -46,8 +47,8 @@ xSemaphoreHandle xBinarySemaphoreUSART3AndDO;
 
 xSemaphoreHandle xBinarySemaphoreUSART4StartALG;
 
-//extern xSemaphoreHandle xMutex_ALGBLOC_RW_DataVar;
-//extern xSemaphoreHandle xMutex_ALGBLOC_RW_DataVar_Buf;
+extern xSemaphoreHandle xMutex_ALGBLOC_RW_DataVar;
+extern xSemaphoreHandle xMutex_ALGBLOC_RW_DataVar_Buf;
 
 typedef struct {
 	struct {
@@ -102,10 +103,12 @@ struct  {
 	uint16_t AO[128];      //128  integer16 Analog Out
 } mc_out_buf_read;
 
+
 struct {
 	float func_a[128];
 	float func_b[128];
-} adc_func_int2float;
+} adc_func_int2float; 
+
 
 ALG_global_value_type	ALG_global_value;
 uint32_t CicleTime;
@@ -130,7 +133,7 @@ void vAlg_block_Task(void * pvParameters)
   vSemaphoreCreateBinary(xBinarySemaphoreUSART1StartALG);
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART2StartALG);
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART3StartALG);
-	vSemaphoreCreateBinary(xBinarySemaphoreUSART4StartALG);
+//	vSemaphoreCreateBinary(xBinarySemaphoreUSART4StartALG);
 	
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART1AndDO);
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART2AndDO);
@@ -143,7 +146,7 @@ void vAlg_block_Task(void * pvParameters)
       vPortFree(buff);
       vTaskDelete( NULL ); 
   }
-		
+		/*
 	ferr = f_mount(0, &fs);
   if (ferr == FR_OK)
 	{
@@ -180,13 +183,13 @@ void vAlg_block_Task(void * pvParameters)
 	{
 		 alg_file_load = 0;
 	}
-	
+	*/
 	xSemaphoreTake(xBinarySemaphoreUSART1StartALG, portMAX_DELAY);
 	xSemaphoreTake(xBinarySemaphoreUSART2StartALG, portMAX_DELAY);
 	xSemaphoreTake(xBinarySemaphoreUSART3StartALG, portMAX_DELAY);
 	
-	xSemaphoreTake(xBinarySemaphoreUSART4StartALG, portMAX_DELAY);
-	xSemaphoreTake(xBinarySemaphoreUSART4StartALG, portMAX_DELAY);
+	//xSemaphoreTake(xBinarySemaphoreUSART4StartALG, portMAX_DELAY);
+	//xSemaphoreTake(xBinarySemaphoreUSART4StartALG, portMAX_DELAY);
 	for (;;)
   {
 		xSemaphoreTake(xBinarySemaphoreUSART1AndDO, portMAX_DELAY);
@@ -216,25 +219,25 @@ void vAlg_block_Task(void * pvParameters)
 			if(modbus_lost_flag == 0 && modbus_lost_flag_u4 == 0 && alg_file_load == 1)
 			{
 				sys_inf_global_value.AlgCount++;
-				(*program)(&ALG_global_value, sys_inf_global_value.CiclePeriod);
+				//(*program)(&ALG_global_value, sys_inf_global_value.CiclePeriod);
 			}
 			modbus_lost_flag = 0;
 		
 			buff[0]=1; buff[1]=0; buff[2]=0; buff[3]=0;
 			memcpy(buff+4, &(ALG_global_value.mc_in_out), sizeof(ALG_global_value.mc_in_out));
 			memcpy(buff+sizeof(ALG_global_value.mc_in_out)+4, &sys_inf_global_value, sizeof(sys_inf_global_value));
-			UDP_send((uint8_t *) buff, sizeof(ALG_global_value.mc_in_out)+sizeof(sys_inf_global_value)+4); 
+			//UDP_send((uint8_t *) buff, sizeof(ALG_global_value.mc_in_out)+sizeof(sys_inf_global_value)+4); 
 			sys_inf_global_value.udp_send_count++;
 		
 			buff[0]=2; buff[1]=0; buff[2]=0; buff[3]=0;
 			memcpy(buff+4, ALG_global_value.RP, sizeof(ALG_global_value.RP)/2);
-			UDP_send((uint8_t *) buff, sizeof(ALG_global_value.RP)/2+4); 
+			//UDP_send((uint8_t *) buff, sizeof(ALG_global_value.RP)/2+4); 
 			sys_inf_global_value.udp_send_count++;
 		
 			buff[0]=3; buff[1]=0; buff[2]=0; buff[3]=0;
 			memcpy(buff+4, ALG_global_value.RP + 256, sizeof(ALG_global_value.RP)/2);
 			memcpy(buff+sizeof(ALG_global_value.RP)/2 + 4, ALG_global_value.IP, sizeof(ALG_global_value.IP));
-			UDP_send((uint8_t *) buff, sizeof(ALG_global_value.RP)/2 + sizeof(ALG_global_value.IP)+4);
+			//UDP_send((uint8_t *) buff, sizeof(ALG_global_value.RP)/2 + sizeof(ALG_global_value.IP)+4);
 			sys_inf_global_value.udp_send_count++;
 		
 			if (sys_inf_global_value.udp_send_count > 0xFFFFFF00)	sys_inf_global_value.udp_send_count=0;
@@ -529,7 +532,7 @@ void write_mc_value_to_buf(uint8_t *val, uint32_t p, uint32_t s,uint8_t ln,uint8
 	uint32_t pv,pd;
 	floatbyte_type floatbyte;
 	
-	///xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
+	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
 	if (m==1)
 		for (i=0;i<ln;i++) {
 			mc_in_out_buf.AD[p+i] = (val[s*2 + i*2+1]*0x100 + val[s*2 + i*2])*adc_func_int2float.func_a[p+i]+adc_func_int2float.func_b[p+i];
@@ -611,7 +614,7 @@ void write_mc_value_lost_to_buf(uint32_t p,uint8_t ln,uint8_t m)
 {
 	uint8_t i;
 
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
+	///xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
 	if (m==1)
 		for (i=0;i<ln;i++) {
 			mc_in_out_buf.AD[p+i] = 0;
@@ -632,7 +635,7 @@ void write_mc_value_lost_to_buf(uint32_t p,uint8_t ln,uint8_t m)
 			mc_in_out_buf.AO[p+i] = 0;
 			mc_in_out_buf.AO_Mask[(p+i)/8] &= ~(1 << (p+i)%8);
 		}
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	///xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
 }
 /***********************
 *@
@@ -665,8 +668,7 @@ void AlgLostModbusPacketU4(uint8_t n)
 	modbus_lost_flag_u4 = n;
 }
 
-
-void write_cnf_adc_float(uint16_t num, float a, float b)
+void WriteCnfAdcFloat(uint16_t num, float a, float b)
 {
 	adc_func_int2float.func_a[num]=a;
 	adc_func_int2float.func_b[num]=b;

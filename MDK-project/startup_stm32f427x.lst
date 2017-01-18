@@ -83,24 +83,24 @@ ARM Macro Assembler    Page 2
    48 00000800         ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
    49 00000800         ; </h>
    50 00000800         
-   51 00000800 00000200 
+   51 00000800 00000800 
                        Heap_Size
-                               EQU              0x00000200
+                               EQU              0x00000800
    52 00000800         
    53 00000800                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
 3
    54 00000000         __heap_base
    55 00000000         Heap_Mem
                                SPACE            Heap_Size
-   56 00000200         __heap_limit
-   57 00000200         
-   58 00000200                 PRESERVE8
-   59 00000200                 THUMB
-   60 00000200                 IF               FreeRTOS = {TRUE}
+   56 00000800         __heap_limit
+   57 00000800         
+   58 00000800                 PRESERVE8
+   59 00000800                 THUMB
+   60 00000800                 IF               FreeRTOS = {TRUE}
    63                          ENDIF
-   64 00000200         
-   65 00000200         ; Vector Table Mapped to Address 0 at Reset
-   66 00000200                 AREA             RESET, DATA, READONLY
+   64 00000800         
+   65 00000800         ; Vector Table Mapped to Address 0 at Reset
+   66 00000800                 AREA             RESET, DATA, READONLY
    67 00000000                 EXPORT           __Vectors
    68 00000000                 EXPORT           __Vectors_End
    69 00000000                 EXPORT           __Vectors_Size
@@ -943,7 +943,7 @@ Symbol: __heap_base
    Uses
       At line 437 in file startup_stm32f427x.s
 Comment: __heap_base used once
-__heap_limit 00000200
+__heap_limit 00000800
 
 Symbol: __heap_limit
    Definitions
@@ -1977,7 +1977,7 @@ Relocatable symbols
 ARM Macro Assembler    Page 1 Alphabetic symbol ordering
 Absolute symbols
 
-Heap_Size 00000200
+Heap_Size 00000800
 
 Symbol: Heap_Size
    Definitions

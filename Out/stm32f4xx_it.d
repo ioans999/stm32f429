@@ -67,3 +67,4 @@
 ..\out\stm32f4xx_it.o: ..\Utilities\lwip-1.4.1\src\include\lwip/sys.h
 ..\out\stm32f4xx_it.o: ..\Utilities\lwip-1.4.1\port\STM32F4x7\arch/sys_arch.h
 ..\out\stm32f4xx_it.o: ..\Utilities\FreeRTOSV7.3.0\include\semphr.h
+..\out\stm32f4xx_it.o: ..\inc\usart.h

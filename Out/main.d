@@ -81,5 +81,6 @@
 ..\out\main.o: ..\inc\algblock.h
 ..\out\main.o: ..\inc\usart.h
 ..\out\main.o: ..\inc\udp_server.h
+..\out\main.o: ..\inc\ftp_server.h
 ..\out\main.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\string.h
 ..\out\main.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\math.h

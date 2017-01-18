@@ -32,6 +32,7 @@
 ..\out\init.o: ..\Utilities\lwip-1.4.1\src\include\ipv4\lwip/ip_addr.h
 ..\out\init.o: ..\Utilities\lwip-1.4.1\src\include\lwip/def.h
 ..\out\init.o: ..\Utilities\lwip-1.4.1\src\include\lwip/sockets.h
+..\out\init.o: ..\Utilities\lwip-1.4.1\src\include\ipv4\lwip/inet.h
 ..\out\init.o: ..\Utilities\lwip-1.4.1\src\include\ipv4\lwip/ip.h
 ..\out\init.o: ..\Utilities\lwip-1.4.1\src\include\lwip/raw.h
 ..\out\init.o: ..\Utilities\lwip-1.4.1\src\include\lwip/udp.h

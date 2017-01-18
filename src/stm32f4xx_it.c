@@ -41,6 +41,8 @@
 /* lwip includes */
 #include "lwip/sys.h"
 
+#include "usart.h"
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -199,6 +201,177 @@ void DMA2_Stream3_IRQHandler(void)//SD_SDIO_DMA_IRQHANDLER
 {
   SD_ProcessDMAIRQ();
 } 
+
+/**************************************************
+******************    USART
+**************************************************/
+
+
+void DMA2_Stream7_IRQHandler(void)
+{ 
+  if(DMA_GetITStatus(DMA2_Stream7, DMA_IT_TCIF7)!= RESET)
+  {
+		//RS-485  #3
+		if ((DMA2_Stream7->CR & DMA_SxCR_CHSEL_0) && !(DMA2_Stream7->CR & DMA_SxCR_CHSEL_1) && (DMA2_Stream7->CR & DMA_SxCR_CHSEL_2))
+		{
+			USART_DMACmd(USART6, USART_DMAReq_Tx, DISABLE);
+			DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, DISABLE);
+			DMA_Cmd(DMA2_Stream7, DISABLE);
+			USART_ITConfig(USART6, USART_IT_TC, ENABLE);
+			DMA_ClearITPendingBit(DMA2_Stream7,DMA_IT_TC);
+		}
+		//RS-485  #1
+		if (!(DMA2_Stream7->CR & DMA_SxCR_CHSEL_0) && !(DMA2_Stream7->CR & DMA_SxCR_CHSEL_1) && (DMA2_Stream7->CR & DMA_SxCR_CHSEL_2))
+		{
+			USART_DMACmd(USART6, USART_DMAReq_Tx, DISABLE);
+			DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, DISABLE);
+			DMA_Cmd(DMA2_Stream7, DISABLE);
+			USART_ITConfig(USART1, USART_IT_TC, ENABLE);
+			DMA_ClearITPendingBit(DMA2_Stream7,DMA_IT_TC);
+		}
+  }
+}
+
+/****************************************
+  RS-485  #1
+*/
+void DMA1_Stream7_IRQHandler(void)
+{ 
+  if(DMA_GetITStatus(DMA1_Stream6, DMA_IT_TCIF6)!= RESET)
+  {
+		DMA_ITConfig(DMA1_Stream6,DMA_IT_TC,DISABLE );
+    DMA_Cmd(DMA1_Stream6, DISABLE);	
+		USART_ITConfig(USART2, USART_IT_TC, ENABLE);	
+		DMA_ClearITPendingBit(DMA1_Stream6,DMA_IT_TC);
+  }
+}
+
+void USART1_IRQHandler(void)
+{
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+	{
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+		modbus_IRQ_n2(USART1->DR);
+	}
+	if (USART_GetITStatus(USART1, USART_IT_TC) != RESET)
+	{
+		USART_ClearITPendingBit(USART1, USART_IT_TC);
+		USART_time_reset_n1();
+		GPIO_ResetBits(GPIOA, GPIO_Pin_4);
+		USART_ITConfig(USART1, USART_IT_TC, DISABLE);
+	}
+}
+/****************************************
+  RS-485  #2
+*/
+void DMA1_Stream6_IRQHandler(void)
+{ 
+  if(DMA_GetITStatus(DMA1_Stream6, DMA_IT_TCIF6)!= RESET)
+  {
+		DMA_ITConfig(DMA1_Stream6,DMA_IT_TC,DISABLE );
+    DMA_Cmd(DMA1_Stream6, DISABLE);	
+		USART_ITConfig(USART2, USART_IT_TC, ENABLE);	
+		DMA_ClearITPendingBit(DMA1_Stream6,DMA_IT_TC);
+  }
+}
+
+void USART2_IRQHandler(void)
+{
+	if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
+	{
+		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+		modbus_IRQ_n2(USART2->DR);
+	}
+	if (USART_GetITStatus(USART2, USART_IT_TC) != RESET)
+	{
+		USART_ClearITPendingBit(USART2, USART_IT_TC);
+		USART_time_reset_n2();
+		GPIO_ResetBits(GPIOG, GPIO_Pin_9);
+		USART_ITConfig(USART2, USART_IT_TC, DISABLE);
+	}
+}
+
+
+/****************************************
+  RS-485  #3
+*/
+
+
+void USART6_IRQHandler(void)
+{
+	uint32_t i;
+	
+	if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET)
+	{
+		USART_ClearITPendingBit(USART6, USART_IT_RXNE);
+		modbus_IRQ_n3(USART6->DR);
+	}
+	if (USART_GetITStatus(USART6, USART_IT_TC) != RESET)
+	{
+		USART_ClearITPendingBit(USART6, USART_IT_TC);
+		GPIO_ResetBits(GPIOH, GPIO_Pin_7);
+		USART_ITConfig(USART6, USART_IT_TC, DISABLE);
+	}
+}
+
+
+/****************************************
+  RS-485  #4
+*/
+void DMA1_Stream1_IRQHandler(void)
+{ 
+  if(DMA_GetITStatus(DMA1_Stream1, DMA_IT_TCIF1)!= RESET)
+  {
+		USART_DMACmd(UART7, USART_DMAReq_Tx, DISABLE);
+		DMA_ITConfig(DMA1_Stream1, DMA_IT_TC, DISABLE);
+    DMA_Cmd(DMA1_Stream1, DISABLE);
+		USART_ITConfig(UART7, USART_IT_TC, ENABLE);
+		DMA_ClearITPendingBit(DMA1_Stream1,DMA_IT_TC);
+  }
+}
+
+
+void UART7_IRQHandler(void)
+{
+	uint32_t i;
+	
+	if (USART_GetITStatus(UART7, USART_IT_RXNE) != RESET)
+	{
+		USART_ClearITPendingBit(UART7, USART_IT_RXNE);
+		modbus_IRQ_n4(UART7->DR);
+	}
+	if (USART_GetITStatus(UART7, USART_IT_TC) != RESET)
+	{
+		USART_ClearITPendingBit(UART7, USART_IT_TC);
+		GPIO_ResetBits(GPIOF, GPIO_Pin_8);
+		USART_ITConfig(UART7, USART_IT_TC, DISABLE);
+	}
+}
+
+
+
+/******************************
+RS-485  TIMER
+*/
+void TIM6_DAC_IRQHandler(void)
+{
+	static uint8_t tc;
+	
+	if (TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET) 
+	{
+		timer_IRQ_n1();
+		timer_IRQ_n2();
+		timer_IRQ_n3();
+		timer_IRQ_n4();
+		if (tc > 9)
+		{
+			//AlgCicleTimeInc();
+			tc=0;
+		} tc++;
+	  TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
+  }
+}
+
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */

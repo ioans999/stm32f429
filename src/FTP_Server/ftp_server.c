@@ -425,7 +425,7 @@ FTP_Read_List_Of_Files(struct netconn *connfd)
 	uint8_t  i;
 	uint8_t  n;
 	
-	if( (alloc_send=(char *)pvPortMalloc(32)) == NULL )
+	if( (alloc_send=(char *)pvPortMalloc(64)) == NULL )
   {    
      vPortFree(alloc_send);
      return 1;
@@ -467,7 +467,7 @@ FTP_Read_List_Of_Files(struct netconn *connfd)
 		
 		//attribute month file date
 		strcat(alloc_send," ");
-		strcat(alloc_send,(month_array[((fi.fdate >> 5) & 15) -1]));
+		//strcat(alloc_send,(month_array[((fi.fdate >> 5) & 15) -1]));
 		
 		//attribute day file date
 		atr_f = buff;
@@ -516,7 +516,7 @@ uint8_t
 FTP_Read_File(struct netconn *connfd,  char *alloc_rq)
 {
 	FATFS   fs; 
-	static FIL     file;
+	FIL     file;
 	UINT    len;
 	FRESULT res;
   UINT    len_send;	
@@ -564,7 +564,7 @@ uint8_t
 FTP_Write_File(struct netconn *connfd, char *alloc_rq)
 {
 	FATFS   fs; 
-	static FIL  file;
+	FIL  file;
 	FRESULT res;
 	struct netbuf *inbuf;
   struct pbuf *q;

@@ -1,5 +1,6 @@
 #include "sys_config.h"
 
+#include "arm_math.h"
 #include "ff.h"
 #include "ethernetif.h"
 #include "netconf.h"
@@ -54,8 +55,6 @@ typedef struct {
 void read_cmd(char* str,char* w1,char* w2,char* w3);
 uint8_t read_config(rc_config_initialization *rc_cnf);
 
-
-
 uint8_t rc_config_start(void) 
 {
 	uint8_t err,i;
@@ -74,12 +73,12 @@ uint8_t rc_config_start(void)
 	rc_conf.MAC_addrs_cnf[3] = 0x02;
 	rc_conf.MAC_addrs_cnf[4] = 0x02;
 	rc_conf.MAC_addrs_cnf[5] = 0x02;
-	
+
 	rc_conf.IP4_ADDR_cnf[0]=192;
 	rc_conf.IP4_ADDR_cnf[1]=168;
-	rc_conf.IP4_ADDR_cnf[2]=0;
+	rc_conf.IP4_ADDR_cnf[2]=1;
 	rc_conf.IP4_ADDR_cnf[3]=254;
-	
+
 	rc_conf.rs485_1.speed=115200;
 	rc_conf.rs485_2.speed=115200;
 	rc_conf.rs485_3.speed=115200;
@@ -107,17 +106,18 @@ uint8_t rc_config_start(void)
 	
 	set_mac_addr_config(rc_conf.MAC_addrs_cnf);
   set_ipv4_config(rc_conf.IP4_ADDR_cnf);
-	//set_rs485_config_v1(rc_conf.rs485_1.mc, rc_conf.rs485_1.addr, rc_conf.rs485_1.valpoint);
-	//set_rs485_config_v2(rc_conf.rs485_2.mc, rc_conf.rs485_2.addr, rc_conf.rs485_2.valpoint);
-	//set_rs485_config_v3(rc_conf.rs485_3.mc, rc_conf.rs485_3.addr, rc_conf.rs485_3.valpoint);
-	//set_rs485_config_v4(rc_conf.rs485_4.mc, rc_conf.rs485_4.addr, rc_conf.rs485_4.valpoint);
+	set_rs485_config_v1(rc_conf.rs485_1.mc, rc_conf.rs485_1.addr, rc_conf.rs485_1.valpoint);
+	set_rs485_config_v2(rc_conf.rs485_2.mc, rc_conf.rs485_2.addr, rc_conf.rs485_2.valpoint);
+	set_rs485_config_v3(rc_conf.rs485_3.mc, rc_conf.rs485_3.addr, rc_conf.rs485_3.valpoint);
+	set_rs485_config_v4(rc_conf.rs485_4.mc, rc_conf.rs485_4.addr, rc_conf.rs485_4.valpoint);
 
 	//ETH_BSP_Config();
   //LwIP_Init();
-	//InitUsart_rs485_n1(rc_conf.rs485_1.speed);
-	//InitUsart_rs485_n2(rc_conf.rs485_2.speed);
-  //InitUsart_rs485_n3(rc_conf.rs485_3.speed);
-	//InitUsart_rs485_n4(rc_conf.rs485_4.speed);
+	InitTIM6();
+	InitUsart_rs485_n1(rc_conf.rs485_1.speed);
+	InitUsart_rs485_n2(rc_conf.rs485_2.speed);
+  InitUsart_rs485_n3(rc_conf.rs485_3.speed);
+	InitUsart_rs485_n4(rc_conf.rs485_4.speed);
 	//SetDestPort(rc_conf.dst_port);
 	
 	return err;
@@ -141,11 +141,11 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
   FIL     filecnf;
   FRESULT ferr; 
 	uint8_t str[60];
-	uint32_t n,i; 
+	volatile uint32_t n,i; 
   uint8_t w1[20];
 	uint8_t w2[20];
 	uint8_t w3[20];
- 
+	
 	ferr = f_mount(0, &fscnf);
   if (ferr != FR_OK) {
 		return 1;
@@ -228,7 +228,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
       return 3;			
 	  }
 		read_cmd((char *)str,(char *)w1,(char *)w2,(char *)w3);
-		if  (strncmp((char *)w1,"ad16",strlen("ad16"))==0)
+		if  (strncmp((char *)w1,"AI300",strlen("AI300"))==0)
 		{
 			rc_cnf->rs485_1.mc[i]=1;
 			rc_cnf->rs485_1.addr[i]=atoi((char *)w2);
@@ -236,7 +236,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"ai200",strlen("ai200"))==0)
+		if  (strncmp((char *)w1,"AI200",strlen("AI200"))==0)
 		{
 			rc_cnf->rs485_1.mc[i]=2;
 			rc_cnf->rs485_1.addr[i]=atoi((char *)w2);
@@ -244,7 +244,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"dd16",strlen("dd16"))==0)
+		if  (strncmp((char *)w1,"DI200",strlen("DI200"))==0)
 		{
 			rc_cnf->rs485_1.mc[i]=3;
 			rc_cnf->rs485_1.addr[i]=atoi((char *)w2);
@@ -252,7 +252,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"do16",strlen("do16"))==0)
+		if  (strncmp((char *)w1,"DO200",strlen("DO200"))==0)
 		{
 			rc_cnf->rs485_1.mc[i]=11;
 			rc_cnf->rs485_1.addr[i]=atoi((char *)w2);
@@ -286,7 +286,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
       return 4;			
 	  }
 		read_cmd((char *)str,(char *)w1,(char *)w2,(char *)w3);
-    if  (strncmp((char *)w1,"ad16",strlen("ad16"))==0)
+    if  (strncmp((char *)w1,"AI300",strlen("AI300"))==0)
 		{
 			rc_cnf->rs485_2.mc[i]=1;
 			rc_cnf->rs485_2.addr[i]=atoi((char *)w2);
@@ -294,7 +294,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"ai200",strlen("ai200"))==0)
+		if  (strncmp((char *)w1,"AI200",strlen("AI200"))==0)
 		{
 			rc_cnf->rs485_2.mc[i]=2;
 			rc_cnf->rs485_2.addr[i]=atoi((char *)w2);
@@ -302,7 +302,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"dd16",strlen("dd16"))==0)
+		if  (strncmp((char *)w1,"DI200",strlen("DI200"))==0)
 		{
 			rc_cnf->rs485_2.mc[i]=3;
 			rc_cnf->rs485_2.addr[i]=atoi((char *)w2);
@@ -310,17 +310,13 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"do16",strlen("do16"))==0)
+		if  (strncmp((char *)w1,"DO200",strlen("DO200"))==0)
 		{
 			rc_cnf->rs485_2.mc[i]=11;
 			rc_cnf->rs485_2.addr[i]=atoi((char *)w2);
 			rc_cnf->rs485_2.valpoint[i]=atoi((char *)w3);
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
-		}
-		if (strncmp((char *)w1,"dest_port",strlen("dest_port"))==0)
-		{
-			 rc_cnf->dst_port = atoi((char *)w2);
 		}
 	}
 	f_close(&filecnf);
@@ -348,7 +344,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
       return 5;			
 	  }
 		read_cmd((char *)str,(char *)w1,(char *)w2,(char *)w3);
-		if  (strncmp((char *)w1,"ad16",strlen("ad16"))==0)
+		if  (strncmp((char *)w1,"AI300",strlen("AI300"))==0)
 		{
 			rc_cnf->rs485_3.mc[i]=1;
 			rc_cnf->rs485_3.addr[i]=atoi((char *)w2);
@@ -356,7 +352,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"ai200",strlen("ai200"))==0)
+		if  (strncmp((char *)w1,"AI200",strlen("AI200"))==0)
 		{
 			rc_cnf->rs485_3.mc[i]=2;
 			rc_cnf->rs485_3.addr[i]=atoi((char *)w2);
@@ -364,7 +360,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"dd16",strlen("dd16"))==0)
+		if  (strncmp((char *)w1,"DI200",strlen("DI200"))==0)
 		{
 			rc_cnf->rs485_3.mc[i]=3;
 			rc_cnf->rs485_3.addr[i]=atoi((char *)w2);
@@ -372,7 +368,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"do16",strlen("do16"))==0)
+		if  (strncmp((char *)w1,"DO200",strlen("DO200"))==0)
 		{
 			rc_cnf->rs485_3.mc[i]=11;
 			rc_cnf->rs485_3.addr[i]=atoi((char *)w2);
@@ -406,7 +402,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
       return 6;			
 	  }
 		read_cmd((char *)str,(char *)w1,(char *)w2,(char *)w3);
-		if  (strncmp((char *)w1,"ad16",strlen("ad16"))==0)
+		if  (strncmp((char *)w1,"AI300",strlen("AI300"))==0)
 		{
 			rc_cnf->rs485_4.mc[i]=1;
 			rc_cnf->rs485_4.addr[i]=atoi((char *)w2);
@@ -414,7 +410,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"ai200",strlen("ai200"))==0)
+		if  (strncmp((char *)w1,"AI200",strlen("AI200"))==0)
 		{
 			rc_cnf->rs485_4.mc[i]=2;
 			rc_cnf->rs485_4.addr[i]=atoi((char *)w2);
@@ -422,7 +418,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"dd16",strlen("dd16"))==0)
+		if  (strncmp((char *)w1,"DI200",strlen("DI200"))==0)
 		{
 			rc_cnf->rs485_4.mc[i]=3;
 			rc_cnf->rs485_4.addr[i]=atoi((char *)w2);
@@ -430,7 +426,7 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 			i++;
 			if (i> (NUBER_PCB_IN_OUT-1)) break;
 		}
-		if  (strncmp((char *)w1,"do16",strlen("do16"))==0)
+		if  (strncmp((char *)w1,"DO200",strlen("DO200"))==0)
 		{
 			rc_cnf->rs485_4.mc[i]=11;
 			rc_cnf->rs485_4.addr[i]=atoi((char *)w2);
@@ -448,7 +444,8 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 	if (ferr != FR_OK) {
 		return 7;
 	}
-	for ( n=0; n < 1024; n++)
+
+	for ( n=0; n < 1; n++)
 	{
 		str[0]=0;
 	  if (f_gets((char *)str, sizeof(str), &filecnf)==0)
@@ -465,12 +462,12 @@ uint8_t read_config(rc_config_initialization *rc_cnf)
 		read_cmd((char *)str,(char *)w1,(char *)w2,(char *)w3);
 		if ((w1[0]!=0)&&(w2[0]!=0)&&(w3[0]!=0))
 		{
-			float a = 0, b = 0;
+			volatile float a = 0, b = 0;
 			uint16_t num_f;
-			a = atof((char *)w2);
+		  a = atof((char *)w2);
 			b = atof((char *)w3);
 			num_f = atoi((char *)w1);
-			write_cnf_adc_float(num_f, a, b);
+			WriteCnfAdcFloat(num_f, a, b);
 		}
 	}
 	f_close(&filecnf);

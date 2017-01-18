@@ -46,6 +46,16 @@ void v_rs485_task_n3(void * pvParameters)
 
 	uint8_t bf[44];
 	
+	//Init LED3
+	GPIO_InitTypeDef gpio;
+	//RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOH, ENABLE );
+	gpio.GPIO_PuPd = GPIO_PuPd_DOWN;
+	gpio.GPIO_OType = GPIO_OType_PP;
+  gpio.GPIO_Mode = GPIO_Mode_OUT;
+	gpio.GPIO_Pin = GPIO_Pin_11;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOH, &gpio);
+	
  	vSemaphoreCreateBinary(xBinarySemaphoreUSART3sendAD_DD);
  	vSemaphoreCreateBinary(xBinarySemaphoreUSART3sendDD);
 	xSemaphoreTake(xBinarySemaphoreUSART3sendAD_DD, portMAX_DELAY);
@@ -80,6 +90,7 @@ void v_rs485_task_n3(void * pvParameters)
 				}
 				if(RS485_Modbus_n3.flag==3)
 				{
+					GPIO_SetBits(GPIOH, GPIO_Pin_11);
 					if (Chk_mb_packet(RS485_Modbus_n3.data, RS485_ucntrl_n3.list_cntrl[count_mc], RS485_ucntrl_n3.addr_cntrl[count_mc], RS485_Modbus_n3.count_b) ==0)
 					{
 						//Write Analog from ad16
@@ -98,6 +109,7 @@ void v_rs485_task_n3(void * pvParameters)
 					}
 		 	  } 
 				vTaskDelay(2/ portTICK_RATE_MS );
+				GPIO_ResetBits(GPIOH, GPIO_Pin_11);
 			}
 		}
 		write_modbas_inf(all_tx,1,3);
@@ -124,6 +136,7 @@ void v_rs485_task_n3(void * pvParameters)
 				//Get Discret for do16
 				if (RS485_ucntrl_n3.list_cntrl[count_mc]==11)
 				{
+					GPIO_SetBits(GPIOH, GPIO_Pin_11);
 					bf[5]=get_mc_DO_byte(RS485_ucntrl_n3.point_write_value[count_mc]);
 					bf[6]=get_mc_DO_byte(RS485_ucntrl_n3.point_write_value[count_mc]+8);
 					for(i=0; i<16; i++)
@@ -156,16 +169,18 @@ void v_rs485_task_n3(void * pvParameters)
 							 write_mc_value(RS485_Modbus_n3.data+3, RS485_ucntrl_n3.point_write_value[count_mc],16,3);
 							 write_mc_value(RS485_Modbus_n3.data+5, RS485_ucntrl_n3.point_write_value[count_mc],16,4);
 						 }
-						 all_rx++;
+						 all_rx++; 
 					}
 		 	  }
 				vTaskDelay(2/ portTICK_RATE_MS );
+				GPIO_ResetBits(GPIOH, GPIO_Pin_11);
 			}
 		}
 		if ((all_tx - all_rx) > current_lost)
 		{
 			AlgLostModbusPacket();
 		}
+		vTaskDelay(4 / portTICK_RATE_MS );////////////////////!!!!!!!!!!!!!!!!!!!!!
 		xSemaphoreGive(xBinarySemaphoreUSART3AndDO);
 	}
 }
@@ -229,18 +244,27 @@ void USART_time_reset_n3(void)
 }
 
 
+void rs485_DMASend_n33(uint8_t *source, uint8_t size, uint8_t cut_after_newline)
+{
+	volatile int i = 0;
 
+  for(i=0;i<size;i++)
+  {
+	//	while(USART_GetFlagStatus(USART6, USART_FLAG_TXE) == RESET);
+		  USART_SendData(USART6, (uint8_t) source[i]);
+  }
+}
 
 void rs485_DMASend_n3(uint8_t *source, uint8_t size, uint8_t cut_after_newline)
 {
 	 DMA_InitTypeDef dma;
 	 NVIC_InitTypeDef dma_nvic;
 
-	 GPIO_SetBits(GPIOB, GPIO_Pin_1);
+	 GPIO_SetBits(GPIOH, GPIO_Pin_7);
 	
-   DMA_DeInit(DMA1_Stream3);
+   DMA_DeInit(DMA2_Stream7);
 	 dma.DMA_BufferSize = size;
-   dma.DMA_Channel = DMA_Channel_4;
+   dma.DMA_Channel = DMA_Channel_5;
    dma.DMA_DIR = DMA_DIR_MemoryToPeripheral;
    dma.DMA_FIFOMode = DMA_FIFOMode_Disable;
    dma.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
@@ -249,7 +273,7 @@ void rs485_DMASend_n3(uint8_t *source, uint8_t size, uint8_t cut_after_newline)
    dma.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
    dma.DMA_MemoryInc = DMA_MemoryInc_Enable;
    dma.DMA_Mode = DMA_Mode_Normal;
-   dma.DMA_PeripheralBaseAddr = (uint32_t)&(USART3->DR);
+   dma.DMA_PeripheralBaseAddr = (uint32_t)&(USART6->DR);
    dma.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
    dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
    dma.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
@@ -260,15 +284,15 @@ void rs485_DMASend_n3(uint8_t *source, uint8_t size, uint8_t cut_after_newline)
    dma_nvic.NVIC_IRQChannelCmd = ENABLE;
    dma_nvic.NVIC_IRQChannelPreemptionPriority = 1;
    dma_nvic.NVIC_IRQChannelSubPriority = 0;
-   DMA_Init(DMA1_Stream3, &dma);
-	 DMA_ITConfig(DMA1_Stream3, DMA_IT_TC, ENABLE);
-	 NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+   DMA_Init(DMA2_Stream7, &dma);
+	 DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, ENABLE);
+	 NVIC_EnableIRQ(DMA2_Stream7_IRQn);
 	 
 	 
    //NVIC_Init(&dma_nvic);
-	 USART_ClearFlag(USART3, USART_FLAG_TC);
-   USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
-	 DMA_Cmd(DMA1_Stream3, ENABLE);
+	 USART_ClearFlag(USART6, USART_FLAG_TC);
+   USART_DMACmd(USART6, USART_DMAReq_Tx, ENABLE);
+	 DMA_Cmd(DMA2_Stream7, ENABLE);
    return;
 }
 
@@ -282,33 +306,35 @@ void InitUsart_rs485_n3(uint32_t baudrate)
 	GPIO_InitTypeDef gpio;
 	USART_InitTypeDef usart;
 	
-	RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOB, ENABLE );
+	USART_DeInit(USART6);
+	RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOH, ENABLE );
 	gpio.GPIO_OType = GPIO_OType_PP;
   gpio.GPIO_PuPd = GPIO_PuPd_DOWN;
   gpio.GPIO_Mode = GPIO_Mode_OUT;
-	gpio.GPIO_Pin = GPIO_Pin_1;
+	gpio.GPIO_Pin = GPIO_Pin_7;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &gpio);  //RS-485 DE
+  GPIO_Init(GPIOH, &gpio);  //RS-485 DE
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
 	
 	gpio.GPIO_Mode = GPIO_Mode_AF;
   gpio.GPIO_OType = GPIO_OType_PP; 
   gpio.GPIO_PuPd = GPIO_PuPd_UP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-	//USART3 TX
-	gpio.GPIO_Pin = GPIO_Pin_8;
-  GPIO_Init(GPIOD, &gpio);
+	//USART6 TX
+	gpio.GPIO_Pin = GPIO_Pin_6;
+  GPIO_Init(GPIOC, &gpio);
 	
-	//USART3 RX
-	gpio.GPIO_Pin = GPIO_Pin_9;
-  GPIO_Init(GPIOD, &gpio);
+	//USART6 RX
+	gpio.GPIO_Pin = GPIO_Pin_7;
+  GPIO_Init(GPIOC, &gpio);
 	
-	GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_USART6);
+  GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_USART6);
 
+  //USART_StructInit(&usart);
   usart.USART_BaudRate = baudrate;
   usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
   usart.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
@@ -316,14 +342,11 @@ void InitUsart_rs485_n3(uint32_t baudrate)
   usart.USART_StopBits = USART_StopBits_1;
   usart.USART_WordLength = USART_WordLength_8b;
 	
-	
-	USART_Init(USART3, &usart);
-
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
-	
-	NVIC_EnableIRQ(USART3_IRQn);
-	USART_Cmd(USART3, ENABLE);
-	USART_ClearFlag(USART3, USART_FLAG_TC);
+	USART_Init(USART6, &usart);
+	USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
+	NVIC_EnableIRQ(USART6_IRQn);
+	USART_Cmd(USART6, ENABLE);
+	USART_ClearFlag(USART6, USART_FLAG_TC);
 }
 
 

@@ -50,9 +50,9 @@
           <OutputName>project-PLC</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -225,7 +225,7 @@
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <RoSelD>3</RoSelD>
@@ -246,7 +246,7 @@
             <Ra2Chk>0</Ra2Chk>
             <Ra3Chk>0</Ra3Chk>
             <Im1Chk>1</Im1Chk>
-            <Im2Chk>0</Im2Chk>
+            <Im2Chk>1</Im2Chk>
             <OnChipMemories>
               <Ocm1>
                 <Type>0</Type>
@@ -348,10 +348,10 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
-            <oTime>0</oTime>
+            <Optim>4</Optim>
+            <oTime>1</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>0</OneElfS>
+            <OneElfS>1</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -764,11 +764,6 @@
               <FilePath>..\Utilities\FreeRTOSV7.3.0\portable\RVDS\ARM_CM3\port.c</FilePath>
             </File>
             <File>
-              <FileName>heap_4.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Utilities\FreeRTOSV7.3.0\portable\MemMang\heap_4.c</FilePath>
-            </File>
-            <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Utilities\FreeRTOSV7.3.0\tasks.c</FilePath>
@@ -787,6 +782,11 @@
               <FileName>queue.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Utilities\FreeRTOSV7.3.0\queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>heap_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Utilities\FreeRTOSV7.3.0\portable\MemMang\heap_4.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -852,6 +852,11 @@
               <FileName>stm32f4xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\stm32f4xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>ftp_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\FTP_Server\ftp_server.c</FilePath>
             </File>
           </Files>
         </Group>

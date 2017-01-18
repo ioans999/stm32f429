@@ -56,7 +56,7 @@
 
 /* MEM_SIZE: the size of the heap memory. If the application will send
 a lot of data that needs to be copied, this should be set high. */
-#define MEM_SIZE                (10*1024)
+#define MEM_SIZE                (20*1024)
 
 /* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application
    sends a lot of data out of ROM (or other static memory), this
@@ -84,7 +84,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define PBUF_POOL_SIZE          12
 
 /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
-#define PBUF_POOL_BUFSIZE       512
+#define PBUF_POOL_BUFSIZE       1536
 
 
 /* ---------- TCP options ---------- */
@@ -201,7 +201,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
-#define LWIP_SOCKET                     0
+#define LWIP_SOCKET                     1
 
 /*
    -----------------------------------
@@ -212,6 +212,11 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define LWIP_DEBUG                      0
 
 
+/**
+ * LWIP_SO_RCVTIMEO==1: Enable receive timeout for sockets/netconns and
+ * SO_RCVTIMEO processing.
+ */
+#define LWIP_SO_RCVTIMEO								1
 /*
    ---------------------------------
    ---------- OS options ----------
@@ -219,12 +224,12 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 */
 
 #define TCPIP_THREAD_NAME              "TCP/IP"
-#define TCPIP_THREAD_STACKSIZE          1000
-#define TCPIP_MBOX_SIZE                 5
-#define DEFAULT_UDP_RECVMBOX_SIZE       2000
-#define DEFAULT_TCP_RECVMBOX_SIZE       2000
-#define DEFAULT_ACCEPTMBOX_SIZE         2000
-#define DEFAULT_THREAD_STACKSIZE        500
+#define TCPIP_THREAD_STACKSIZE          2600
+#define TCPIP_MBOX_SIZE                 4
+#define DEFAULT_UDP_RECVMBOX_SIZE       4
+#define DEFAULT_TCP_RECVMBOX_SIZE       4
+#define DEFAULT_ACCEPTMBOX_SIZE         6
+#define DEFAULT_THREAD_STACKSIZE        1000
 #define TCPIP_THREAD_PRIO               (configMAX_PRIORITIES - 2)
 #define LWIP_COMPAT_MUTEX               1
 

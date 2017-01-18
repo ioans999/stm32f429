@@ -349,7 +349,7 @@
           <Cads>
             <interw>1</interw>
             <Optim>1</Optim>
-            <oTime>0</oTime>
+            <oTime>1</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
@@ -743,6 +743,11 @@
               <FileType>1</FileType>
               <FilePath>..\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_rtc.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f4xx_tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_tim.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -799,6 +804,11 @@
               <FilePath>..\main.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f4xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\stm32f4xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f4x7_eth_bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\stm32f4x7_eth_bsp.c</FilePath>
@@ -809,9 +819,9 @@
               <FilePath>..\src\netconf.c</FilePath>
             </File>
             <File>
-              <FileName>utilities.c</FileName>
+              <FileName>sys_config.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\utilities.c</FilePath>
+              <FilePath>..\src\sys_config.c</FilePath>
             </File>
             <File>
               <FileName>algbloc.c</FileName>
@@ -824,9 +834,9 @@
               <FilePath>..\src\udp_server.c</FilePath>
             </File>
             <File>
-              <FileName>sys_config.c</FileName>
+              <FileName>ftp_server.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\sys_config.c</FilePath>
+              <FilePath>..\src\FTP_Server\ftp_server.c</FilePath>
             </File>
             <File>
               <FileName>usart1.c</FileName>
@@ -839,6 +849,11 @@
               <FilePath>..\src\Usart\usart2.c</FilePath>
             </File>
             <File>
+              <FileName>usart3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\Usart\usart3.c</FilePath>
+            </File>
+            <File>
               <FileName>usart4.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\Usart\usart4.c</FilePath>
@@ -849,9 +864,9 @@
               <FilePath>..\src\modbus.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f4xx_it.c</FileName>
+              <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\stm32f4xx_it.c</FilePath>
+              <FilePath>..\src\utilities.c</FilePath>
             </File>
           </Files>
         </Group>

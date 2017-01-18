@@ -36,6 +36,10 @@
 ..\out\algbloc.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_wwdg.h
 ..\out\algbloc.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_fmc.h
 ..\out\algbloc.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\misc.h
+..\out\algbloc.o: ..\Libraries\CMSIS\Include\arm_math.h
+..\out\algbloc.o: ..\Libraries\CMSIS\Include\core_cm4.h
+..\out\algbloc.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\string.h
+..\out\algbloc.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\math.h
 ..\out\algbloc.o: ..\Utilities\FreeRTOSV7.3.0\include\FreeRTOS.h
 ..\out\algbloc.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stddef.h
 ..\out\algbloc.o: ..\Utilities\FreeRTOSV7.3.0\include\projdefs.h
@@ -72,5 +76,4 @@
 ..\out\algbloc.o: ..\inc\sys_config.h
 ..\out\algbloc.o: ..\inc\udp_server.h
 ..\out\algbloc.o: ..\inc\usart.h
-..\out\algbloc.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\string.h
 ..\out\algbloc.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdlib.h

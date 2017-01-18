@@ -38,8 +38,7 @@ void InitUsart_rs485_n4(uint32_t baudrate);
 void v_rs485_task_n4(void * pvParameters);
 void timer_IRQ_n4(void );
 void uart_print(char *str, uint8_t ln);
-void modbus_rx_IRQ_n4(uint8_t b_in);
-void modbus_tx_IRQ_n4(void);
+void timer_IRQ_n4(void );
 void set_rs485_config_v4(uint8_t *mc, uint8_t *addr, uint8_t *point);
 
 #endif

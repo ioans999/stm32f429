@@ -36,6 +36,7 @@
 ..\out\usart4.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_wwdg.h
 ..\out\usart4.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_fmc.h
 ..\out\usart4.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\misc.h
+..\out\usart4.o: ..\inc\algblock.h
 ..\out\usart4.o: ..\Utilities\FreeRTOSV7.3.0\include\FreeRTOS.h
 ..\out\usart4.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stddef.h
 ..\out\usart4.o: ..\Utilities\FreeRTOSV7.3.0\include\projdefs.h
@@ -45,8 +46,9 @@
 ..\out\usart4.o: ..\Utilities\FreeRTOSV7.3.0\include\mpu_wrappers.h
 ..\out\usart4.o: ..\Utilities\FreeRTOSV7.3.0\include\task.h
 ..\out\usart4.o: ..\Utilities\FreeRTOSV7.3.0\include\list.h
-..\out\usart4.o: ..\inc\algblock.h
 ..\out\usart4.o: ..\inc\modbus.h
 ..\out\usart4.o: ..\inc\algdef.h
 ..\out\usart4.o: ..\Utilities\FreeRTOSV7.3.0\include\semphr.h
 ..\out\usart4.o: ..\Utilities\FreeRTOSV7.3.0\include\queue.h
+..\out\usart4.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdlib.h
+..\out\usart4.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\string.h

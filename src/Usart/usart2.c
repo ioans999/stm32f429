@@ -46,6 +46,15 @@ void v_rs485_task_n2(void * pvParameters)
 
 	uint8_t bf[44];
 	
+	//Init LED2
+	GPIO_InitTypeDef gpio;
+	RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOG, ENABLE );
+	gpio.GPIO_OType = GPIO_OType_PP;
+  gpio.GPIO_Mode = GPIO_Mode_OUT;
+	gpio.GPIO_Pin = GPIO_Pin_0;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB, &gpio);
+
 	
  	vSemaphoreCreateBinary(xBinarySemaphoreUSART2sendAD_DD);
  	vSemaphoreCreateBinary(xBinarySemaphoreUSART2sendDD);
@@ -82,6 +91,7 @@ void v_rs485_task_n2(void * pvParameters)
 				}
 				if(RS485_Modbus_n2.flag==3)
 				{
+					GPIO_SetBits(GPIOB, GPIO_Pin_0);
 					if (Chk_mb_packet(RS485_Modbus_n2.data, RS485_ucntrl_n2.list_cntrl[count_mc], RS485_ucntrl_n2.addr_cntrl[count_mc], RS485_Modbus_n2.count_b) ==0)
 					{
 						//Write Analog from ad16
@@ -100,6 +110,7 @@ void v_rs485_task_n2(void * pvParameters)
 					}
 		 	  } 
 				vTaskDelay(2/ portTICK_RATE_MS );
+				GPIO_ResetBits(GPIOB, GPIO_Pin_0);
 			}
 		}
 		write_modbas_inf(all_tx,1,2);
@@ -152,6 +163,7 @@ void v_rs485_task_n2(void * pvParameters)
 				}
 				if(RS485_Modbus_n2.flag==3)
 				{
+					GPIO_SetBits(GPIOB, GPIO_Pin_0);
 					if (Chk_mb_packet(RS485_Modbus_n2.data, RS485_ucntrl_n2.list_cntrl[count_mc],RS485_ucntrl_n2.addr_cntrl[count_mc], RS485_Modbus_n2.count_b) ==0)
 					{
 						if (RS485_ucntrl_n2.list_cntrl[count_mc]==11){
@@ -162,12 +174,14 @@ void v_rs485_task_n2(void * pvParameters)
 					}
 		 	  }
 				vTaskDelay(2/ portTICK_RATE_MS );
+				GPIO_ResetBits(GPIOB, GPIO_Pin_0);
 			}
 		}
 		if ((all_tx - all_rx) > current_lost)
 		{
 			AlgLostModbusPacket();
 		}
+		vTaskDelay(4 / portTICK_RATE_MS );////////////////////////!!!!!!!!!!!!!!!!!!!!
 		xSemaphoreGive(xBinarySemaphoreUSART2AndDO);
 	}
 }
@@ -229,16 +243,14 @@ void USART_time_reset_n2(void)
 
 
 
-
-
 void rs485_DMASend_n2(uint8_t *source, uint16_t size,uint8_t cut_after_newline)
 {
 	 DMA_InitTypeDef dma;
 	 NVIC_InitTypeDef dma_nvic;
 	
-	 GPIO_SetBits(GPIOB, GPIO_Pin_0);
+	 GPIO_SetBits(GPIOG, GPIO_Pin_9);
    
-   DMA_DeInit(DMA1_Stream4);
+   DMA_DeInit(DMA1_Stream6);
 	
 	 dma.DMA_BufferSize = size;
    dma.DMA_Channel = DMA_Channel_4;
@@ -250,25 +262,27 @@ void rs485_DMASend_n2(uint8_t *source, uint16_t size,uint8_t cut_after_newline)
    dma.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
    dma.DMA_MemoryInc = DMA_MemoryInc_Enable;
    dma.DMA_Mode = DMA_Mode_Normal;
-   dma.DMA_PeripheralBaseAddr = (uint32_t)&(UART4->DR);
+   dma.DMA_PeripheralBaseAddr = (uint32_t)&(USART2->DR);
    dma.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
    dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
    dma.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
    dma.DMA_Priority = DMA_Priority_Low;
 
-   dma_nvic.NVIC_IRQChannel = DMA2_Stream7_IRQn;
+   dma_nvic.NVIC_IRQChannel = DMA1_Stream6_IRQn;
    dma_nvic.NVIC_IRQChannelCmd = ENABLE;
    dma_nvic.NVIC_IRQChannelPreemptionPriority = 1;
    dma_nvic.NVIC_IRQChannelSubPriority = 0;
-   DMA_Init(DMA1_Stream4, &dma);
-	 DMA_ITConfig(DMA1_Stream4, DMA_IT_TC, ENABLE);
-	 NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+   DMA_Init(DMA1_Stream6, &dma);
+	 DMA_ITConfig(DMA1_Stream6, DMA_IT_TC, ENABLE);
+	 NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 	 
+	 
+	 DMA_Cmd(DMA1_Stream6, ENABLE);
 	 
    //NVIC_Init(&dma_nvic);
-	 USART_ClearFlag(UART4, USART_FLAG_TC);
-   USART_DMACmd(UART4, USART_DMAReq_Tx, ENABLE);
-	 DMA_Cmd(DMA1_Stream4, ENABLE);
+	 USART_ClearFlag(USART2, USART_FLAG_TC);
+   USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
+
    return;
 }
 
@@ -284,32 +298,44 @@ void InitUsart_rs485_n2(uint32_t baudrate)
 	GPIO_InitTypeDef gpio;
 	USART_InitTypeDef usart;
 	
-	RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOB, ENABLE );
+	//DE init GPIO
+	RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOG, ENABLE );
 	gpio.GPIO_OType = GPIO_OType_PP;
   gpio.GPIO_PuPd = GPIO_PuPd_DOWN;
   gpio.GPIO_Mode = GPIO_Mode_OUT;
-	gpio.GPIO_Pin = GPIO_Pin_0;
+	gpio.GPIO_Pin = GPIO_Pin_9;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &gpio);
+  GPIO_Init(GPIOG, &gpio);
 
-	
-	//USART2 RX init
+
+
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
-	
+
+	//USART2 RX init GPIO
 	gpio.GPIO_Mode = GPIO_Mode_AF;
   gpio.GPIO_OType = GPIO_OType_PP;
-  gpio.GPIO_Pin = GPIO_Pin_3;
+  gpio.GPIO_Pin = GPIO_Pin_6;
   gpio.GPIO_PuPd = GPIO_PuPd_UP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOA, &gpio);
-	
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);
+  GPIO_Init(GPIOD, &gpio);
+	GPIO_PinAFConfig(GPIOD, GPIO_PinSource6, GPIO_AF_USART2);
 
-  usart.USART_BaudRate = baudrate;
+ 
+  //USART4 TX init GPIO
+	gpio.GPIO_Mode = GPIO_Mode_AF;
+  gpio.GPIO_OType = GPIO_OType_PP;
+  gpio.GPIO_Pin = GPIO_Pin_5;
+  gpio.GPIO_PuPd = GPIO_PuPd_UP;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOD, &gpio);
+	GPIO_PinAFConfig(GPIOD, GPIO_PinSource5 , GPIO_AF_USART2);
+	
+	//USART_StructInit(&usart);
+	usart.USART_BaudRate = baudrate;
   usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  usart.USART_Mode = USART_Mode_Rx;
+  usart.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
   usart.USART_Parity = USART_Parity_No;
   usart.USART_StopBits = USART_StopBits_1;
   usart.USART_WordLength = USART_WordLength_8b;
@@ -317,36 +343,9 @@ void InitUsart_rs485_n2(uint32_t baudrate)
 	USART_Init(USART2, &usart);
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
   USART_ClearFlag(USART2, USART_FLAG_TC);
-
+	
 	NVIC_EnableIRQ(USART2_IRQn);
   USART_Cmd(USART2, ENABLE);
-	
-		
-  //USART4 TX init
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
-	
-	gpio.GPIO_Mode = GPIO_Mode_AF;
-  gpio.GPIO_OType = GPIO_OType_PP;
-  gpio.GPIO_Pin = GPIO_Pin_0;
-  gpio.GPIO_PuPd = GPIO_PuPd_UP;
-  gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOA, &gpio);
-	
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_UART4);
-
-  usart.USART_BaudRate = baudrate;
-  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  usart.USART_Mode = USART_Mode_Tx;
-  usart.USART_Parity = USART_Parity_No;
-  usart.USART_StopBits = USART_StopBits_1;
-  usart.USART_WordLength = USART_WordLength_8b;
-	
-	USART_Init(UART4, &usart);
-  USART_ClearFlag(UART4, USART_FLAG_TC);
-  USART_ITConfig(UART4, USART_IT_TC, ENABLE);
-	
-	NVIC_EnableIRQ(UART4_IRQn);
-  USART_Cmd(UART4, ENABLE);
 	return;	
 }
 

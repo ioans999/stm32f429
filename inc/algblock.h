@@ -13,10 +13,8 @@ uint16_t  get_mc_AO_byte(uint8_t  n);
 void write_mc_value_to_buf(uint8_t *val, uint32_t p, uint32_t s,uint8_t ln,uint8_t m);
 void write_mc_value_lost_to_buf(uint32_t p,uint8_t ln,uint8_t m);
 
-
 void AlgCicleTimeInc(void);
 void AlgLostModbusPacket(void);
 void AlgLostModbusPacketU4(uint8_t n);
-void write_cnf_adc_float(uint16_t num, float a, float b);
-
+void WriteCnfAdcFloat(uint16_t num, float a, float b);
 #endif

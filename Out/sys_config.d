@@ -36,6 +36,10 @@
 ..\out\sys_config.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_wwdg.h
 ..\out\sys_config.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_fmc.h
 ..\out\sys_config.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\misc.h
+..\out\sys_config.o: ..\Libraries\CMSIS\Include\arm_math.h
+..\out\sys_config.o: ..\Libraries\CMSIS\Include\core_cm4.h
+..\out\sys_config.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\string.h
+..\out\sys_config.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\math.h
 ..\out\sys_config.o: ..\Utilities\FatFs_vR0.09b\ff.h
 ..\out\sys_config.o: ..\Utilities\FatFs_vR0.09b\integer.h
 ..\out\sys_config.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdbool.h
@@ -61,5 +65,4 @@
 ..\out\sys_config.o: ..\inc\usart.h
 ..\out\sys_config.o: ..\inc\algblock.h
 ..\out\sys_config.o: ..\inc\udp_server.h
-..\out\sys_config.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\string.h
 ..\out\sys_config.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdlib.h
