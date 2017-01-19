@@ -46,6 +46,7 @@
 
 xSemaphoreHandle xMutex_ALGBLOC_RW_DataVar;
 xSemaphoreHandle xMutex_ALGBLOC_RW_DataVar_Buf;
+xSemaphoreHandle xMutex_USART1_USART3_DmaSend;
 
 void Main_task(void * pvParameters);
 void tasktest(void * pvParameters);
@@ -54,7 +55,8 @@ int main(void)
 {
 	xMutex_ALGBLOC_RW_DataVar = xSemaphoreCreateMutex();
 	xMutex_ALGBLOC_RW_DataVar_Buf = xSemaphoreCreateMutex();
-
+  xMutex_USART1_USART3_DmaSend = xSemaphoreCreateMutex();
+	
   /* Init task */
   xTaskCreate(Main_task,(int8_t *)"Main", configMINIMAL_STACK_SIZE * 12, NULL,tskIDLE_PRIORITY + 2, NULL);
 
@@ -86,41 +88,49 @@ void Main_task(void * pvParameters)
 	
 	//xTaskCreate(tasktest,(int8_t *)"tasktest", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, NULL);
 	
-	err_task = xTaskCreate(vBasicFTPServer, "vBasicFTPServ", configMINIMAL_STACK_SIZE * 10, NULL, 8, NULL);
+	err_task = xTaskCreate(vBasicFTPServer, "vBasicFTPServ", configMINIMAL_STACK_SIZE * 8, NULL, 9, NULL);
 	if (err_task == pdTRUE)  
 		uart_print( "Create vBasicFTPServer task\r\n",strlen("Create vBasicFTPServer task\r\n"));
   else 
 		uart_print( "Error create vBasicFTPServer task\r\n",strlen("Error create vBasicFTPServer task\r\n"));
 	
-	err_task = xTaskCreate(v_rs485_task_n1, "rs485_task_n1", configMINIMAL_STACK_SIZE * 6, NULL, 6, NULL);
+		err_task = xTaskCreate(vUDP_serv_recv, "udp_server", configMINIMAL_STACK_SIZE * 2, NULL, 8, NULL);
+	if (err_task == pdTRUE)  
+		 uart_print( "Create udp_server task\r\n", strlen("Create udp_server task\r\n"));
+  else 
+	 	 uart_print( "Error create udp_server task\r\n", strlen("Error create udp_server task\r\n"));
+	
+	err_task = xTaskCreate(v_rs485_task_n1, "rs485_task_n1", configMINIMAL_STACK_SIZE * 2, NULL, 7, NULL);
 	if (err_task == pdTRUE)  
 		 uart_print( "Create rs485 n1 task\r\n", strlen("Create rs485 n1 task\r\n"));
   else 
 	 	 uart_print( "Error create rs485 n1 task\r\n", strlen("Error create rs485 n1 task\r\n"));		
 	
-	err_task = xTaskCreate(v_rs485_task_n2, "rs485_task_n2", configMINIMAL_STACK_SIZE * 2, NULL, 6, NULL);
+	err_task = xTaskCreate(v_rs485_task_n2, "rs485_task_n2", configMINIMAL_STACK_SIZE * 2, NULL, 7, NULL);
 	if (err_task == pdTRUE)  
 		 uart_print( "Create rs485 n2 task\r\n", strlen("Create rs485 n2 task\r\n"));
   else 
 	 	 uart_print( "Error create rs485 n2 task\r\n", strlen("Error create rs485 n2 task\r\n"));	
 
-	err_task = xTaskCreate(v_rs485_task_n3, "rs485_task_n3", configMINIMAL_STACK_SIZE * 2, NULL, 6, NULL);
+	err_task = xTaskCreate(v_rs485_task_n3, "rs485_task_n3", configMINIMAL_STACK_SIZE * 2, NULL, 7, NULL);
 	if (err_task == pdTRUE)  
 		 uart_print( "Create rs485 n3 task\r\n", strlen("Create rs485 n3 task\r\n"));
   else 
 	 	 uart_print( "Error create rs485 n3 task\r\n", strlen("Error create rs485 n3 task\r\n"));	
-	/*
-	err_task = xTaskCreate(v_rs485_task_n4, "rs485_task_n4", configMINIMAL_STACK_SIZE * 6, NULL, 5, NULL);
+	
+	err_task = xTaskCreate(v_rs485_task_n4, "rs485_task_n4", configMINIMAL_STACK_SIZE * 2, NULL, 7, NULL);
 	if (err_task == pdTRUE)  
 		 uart_print( "Create rs485 n4 task\r\n", strlen("Create rs485 n4 task\r\n"));
   else 
 	 	 uart_print( "Error create rs485 n4 task\r\n", strlen("Error create rs485 n4 task\r\n"));		
-	*/
-	err_task = xTaskCreate(vAlg_block_Task, "Star Algoblock Task", configMINIMAL_STACK_SIZE * 4, NULL, 4, NULL);
+	
+	err_task = xTaskCreate(vAlg_block_Task, "Star Algoblock Task", configMINIMAL_STACK_SIZE * 5, NULL, 6, NULL);
 	if (err_task == pdTRUE)  
 		uart_print( "Create Algoblock task\r\n", strlen("Create Algoblock task\r\n"));
   else 
 		uart_print( "Error create vBasicFTPServer task\r\n", strlen("Error create vBasicFTPServer task\r\n"));
+	
+
 	
   //Ptr16=(uint16_t *)0xC0000000;
 	for( ;; )

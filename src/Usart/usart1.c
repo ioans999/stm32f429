@@ -18,6 +18,7 @@ extern xSemaphoreHandle xBinarySemaphoreUSART1StartALG;
 extern xSemaphoreHandle xBinarySemaphoreUSART1sendAD_DD;
 extern xSemaphoreHandle xBinarySemaphoreUSART1sendDD;
 extern xSemaphoreHandle xBinarySemaphoreUSART1AndDO;
+extern xSemaphoreHandle xMutex_USART1_USART3_DmaSend;
 
 void delete_modbas_buf(void);
 
@@ -46,6 +47,15 @@ void v_rs485_task_n1(void * pvParameters)
 	uint32_t i=0,n=0,count_mc=0;
   
 	uint8_t bf[44];
+	
+	//Init LED1
+	GPIO_InitTypeDef gpio;
+	RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOH, ENABLE );
+	gpio.GPIO_OType = GPIO_OType_PP;
+  gpio.GPIO_Mode = GPIO_Mode_OUT;
+	gpio.GPIO_Pin = GPIO_Pin_3;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOH, &gpio);
 	
  	vSemaphoreCreateBinary(xBinarySemaphoreUSART1sendAD_DD);
  	vSemaphoreCreateBinary(xBinarySemaphoreUSART1sendDD);
@@ -82,6 +92,7 @@ void v_rs485_task_n1(void * pvParameters)
 				}
 				if(RS485_Modbus_n1.flag==3)
 				{
+					GPIO_SetBits(GPIOH, GPIO_Pin_3);
 					if (Chk_mb_packet(RS485_Modbus_n1.data, RS485_ucntrl_n1.list_cntrl[count_mc], RS485_ucntrl_n1.addr_cntrl[count_mc], RS485_Modbus_n1.count_b) ==0)
 					{
 						//Write Analog from ad16
@@ -100,6 +111,7 @@ void v_rs485_task_n1(void * pvParameters)
 					}
 		 	  } 
 				vTaskDelay(2/ portTICK_RATE_MS );
+				GPIO_ResetBits(GPIOH, GPIO_Pin_3);
 			}
 		}
 		write_modbas_inf(all_tx,1,1);
@@ -152,6 +164,7 @@ void v_rs485_task_n1(void * pvParameters)
 				}
 				if(RS485_Modbus_n1.flag==3)
 				{
+					GPIO_SetBits(GPIOH, GPIO_Pin_3);
 					if (Chk_mb_packet(RS485_Modbus_n1.data, RS485_ucntrl_n1.list_cntrl[count_mc],RS485_ucntrl_n1.addr_cntrl[count_mc], RS485_Modbus_n1.count_b) ==0)
 					{
 						 if (RS485_ucntrl_n1.list_cntrl[count_mc]==11){
@@ -162,6 +175,7 @@ void v_rs485_task_n1(void * pvParameters)
 					}
 		 	  }
 				vTaskDelay(2/ portTICK_RATE_MS );
+				GPIO_ResetBits(GPIOH, GPIO_Pin_3);
 			}
 		}
 		if ((all_tx - all_rx) > current_lost)
@@ -218,7 +232,17 @@ void USART_time_reset_n1(void)
 }
 
 
-
+void rs485_DMASend_n12(uint8_t *source, uint16_t size,uint8_t cut_after_newline)
+{
+	volatile int i = 0;
+	
+  GPIO_SetBits(GPIOA, GPIO_Pin_4);
+  for(i=0;i<size;i++)
+  {
+		while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+		  USART_SendData(USART1, (uint8_t) source[i]);
+  }
+}
 
 void rs485_DMASend_n1(uint8_t *source, uint16_t size,uint8_t cut_after_newline)
 {
@@ -227,6 +251,8 @@ void rs485_DMASend_n1(uint8_t *source, uint16_t size,uint8_t cut_after_newline)
 	
 	 GPIO_SetBits(GPIOA, GPIO_Pin_4);
 	
+	 xSemaphoreTake(xMutex_USART1_USART3_DmaSend, portMAX_DELAY );
+	 
 	 DMA_DeInit(DMA2_Stream7);
   
    dma.DMA_BufferSize = size;
@@ -294,8 +320,8 @@ void InitUsart_rs485_n1(uint32_t baudrate)
 	gpio.GPIO_Pin = GPIO_Pin_7;
   GPIO_Init(GPIOB, &gpio);
 	
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_USART6);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_USART6);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_USART1);
+  GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);
 
   usart.USART_BaudRate = baudrate;
   usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;

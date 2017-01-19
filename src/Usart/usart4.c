@@ -155,8 +155,8 @@ void v_rs485_task_n4(void * pvParameters)
 		{
 			AlgLostModbusPacketU4(0);
 		}
-		//xSemaphoreGive(xBinarySemaphoreUSART4StartALG);
-		//vTaskDelay(4 / portTICK_RATE_MS );
+		xSemaphoreGive(xBinarySemaphoreUSART4StartALG);
+		vTaskDelay(4 / portTICK_RATE_MS );
 	}
 }
 

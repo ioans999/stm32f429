@@ -17,6 +17,7 @@ extern xSemaphoreHandle xBinarySemaphoreUSART3StartALG;
 extern xSemaphoreHandle xBinarySemaphoreUSART3sendAD_DD;
 extern xSemaphoreHandle xBinarySemaphoreUSART3sendDD;
 extern xSemaphoreHandle xBinarySemaphoreUSART3AndDO;
+extern xSemaphoreHandle xMutex_USART1_USART3_DmaSend;
 
 void delete_modbas_buf(void);
 
@@ -261,6 +262,8 @@ void rs485_DMASend_n3(uint8_t *source, uint8_t size, uint8_t cut_after_newline)
 	 NVIC_InitTypeDef dma_nvic;
 
 	 GPIO_SetBits(GPIOH, GPIO_Pin_7);
+	
+	 xSemaphoreTake(xMutex_USART1_USART3_DmaSend, portMAX_DELAY );
 	
    DMA_DeInit(DMA2_Stream7);
 	 dma.DMA_BufferSize = size;

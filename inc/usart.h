@@ -4,6 +4,7 @@
 
 #define NUBER_PCB_IN_OUT 20
 
+
 void rs485_DMASend_n1(uint8_t *source, uint16_t size,uint8_t cut_after_newline);
 void InitUsart_rs485_n1(uint32_t baudrate);
 void v_rs485_task_n1(void * pvParameters);

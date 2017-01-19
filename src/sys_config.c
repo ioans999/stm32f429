@@ -118,7 +118,7 @@ uint8_t rc_config_start(void)
 	InitUsart_rs485_n2(rc_conf.rs485_2.speed);
   InitUsart_rs485_n3(rc_conf.rs485_3.speed);
 	InitUsart_rs485_n4(rc_conf.rs485_4.speed);
-	//SetDestPort(rc_conf.dst_port);
+	SetDestPort(rc_conf.dst_port);
 	
 	return err;
 }

@@ -133,20 +133,20 @@ void vAlg_block_Task(void * pvParameters)
   vSemaphoreCreateBinary(xBinarySemaphoreUSART1StartALG);
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART2StartALG);
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART3StartALG);
-//	vSemaphoreCreateBinary(xBinarySemaphoreUSART4StartALG);
+	vSemaphoreCreateBinary(xBinarySemaphoreUSART4StartALG);
 	
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART1AndDO);
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART2AndDO);
 	vSemaphoreCreateBinary(xBinarySemaphoreUSART3AndDO);
 	
-	program = (int(*)(int, char **))0x60000001;
+	program = (int(*)(int, char **))MEMORY_POINT_ALGBLOCK;
 	
 	
 	if( (buff =(char *)pvPortMalloc(1500)) == NULL) {    
       vPortFree(buff);
       vTaskDelete( NULL ); 
   }
-		/*
+		
 	ferr = f_mount(0, &fs);
   if (ferr == FR_OK)
 	{
@@ -162,10 +162,10 @@ void vAlg_block_Task(void * pvParameters)
 						alg_file_load = 0;
 						break;
 					}
-          addr = (uint8_t *)0x60000000;					
+          addr = (uint8_t *)MEMORY_POINT_ALGBLOCK;					
 					for(n = 0; n < len; n++ )
 					{
-					   addr = 0x60000000 + (uint8_t *)j+n;
+					   addr = MEMORY_POINT_ALGBLOCK + (uint8_t *)j+n;
 					   *addr = buff[n];	  				
 					}
 					j += len;					
@@ -183,13 +183,13 @@ void vAlg_block_Task(void * pvParameters)
 	{
 		 alg_file_load = 0;
 	}
-	*/
+	
 	xSemaphoreTake(xBinarySemaphoreUSART1StartALG, portMAX_DELAY);
 	xSemaphoreTake(xBinarySemaphoreUSART2StartALG, portMAX_DELAY);
 	xSemaphoreTake(xBinarySemaphoreUSART3StartALG, portMAX_DELAY);
 	
-	//xSemaphoreTake(xBinarySemaphoreUSART4StartALG, portMAX_DELAY);
-	//xSemaphoreTake(xBinarySemaphoreUSART4StartALG, portMAX_DELAY);
+	xSemaphoreTake(xBinarySemaphoreUSART4StartALG, portMAX_DELAY);
+	xSemaphoreTake(xBinarySemaphoreUSART4StartALG, portMAX_DELAY);
 	for (;;)
   {
 		xSemaphoreTake(xBinarySemaphoreUSART1AndDO, portMAX_DELAY);
@@ -214,7 +214,7 @@ void vAlg_block_Task(void * pvParameters)
 		sys_inf_global_value.CiclePeriod = CicleTime;
 		CicleTime = 0;
 		
-		//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
+		xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
 		{
 			if(modbus_lost_flag == 0 && modbus_lost_flag_u4 == 0 && alg_file_load == 1)
 			{
@@ -226,18 +226,18 @@ void vAlg_block_Task(void * pvParameters)
 			buff[0]=1; buff[1]=0; buff[2]=0; buff[3]=0;
 			memcpy(buff+4, &(ALG_global_value.mc_in_out), sizeof(ALG_global_value.mc_in_out));
 			memcpy(buff+sizeof(ALG_global_value.mc_in_out)+4, &sys_inf_global_value, sizeof(sys_inf_global_value));
-			//UDP_send((uint8_t *) buff, sizeof(ALG_global_value.mc_in_out)+sizeof(sys_inf_global_value)+4); 
+			UDP_send((uint8_t *) buff, sizeof(ALG_global_value.mc_in_out)+sizeof(sys_inf_global_value)+4); 
 			sys_inf_global_value.udp_send_count++;
 		
 			buff[0]=2; buff[1]=0; buff[2]=0; buff[3]=0;
 			memcpy(buff+4, ALG_global_value.RP, sizeof(ALG_global_value.RP)/2);
-			//UDP_send((uint8_t *) buff, sizeof(ALG_global_value.RP)/2+4); 
+			UDP_send((uint8_t *) buff, sizeof(ALG_global_value.RP)/2+4); 
 			sys_inf_global_value.udp_send_count++;
 		
 			buff[0]=3; buff[1]=0; buff[2]=0; buff[3]=0;
 			memcpy(buff+4, ALG_global_value.RP + 256, sizeof(ALG_global_value.RP)/2);
 			memcpy(buff+sizeof(ALG_global_value.RP)/2 + 4, ALG_global_value.IP, sizeof(ALG_global_value.IP));
-			//UDP_send((uint8_t *) buff, sizeof(ALG_global_value.RP)/2 + sizeof(ALG_global_value.IP)+4);
+			UDP_send((uint8_t *) buff, sizeof(ALG_global_value.RP)/2 + sizeof(ALG_global_value.IP)+4);
 			sys_inf_global_value.udp_send_count++;
 		
 			if (sys_inf_global_value.udp_send_count > 0xFFFFFF00)	sys_inf_global_value.udp_send_count=0;
@@ -249,7 +249,7 @@ void vAlg_block_Task(void * pvParameters)
 				ALG_global_value.mc_in_out.AO_Mask[i/8] &= ~(1 << (i%8));
 			}
 		}
-		//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
+		xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
 		
 		xSemaphoreGive(xBinarySemaphoreUSART1sendDD);
 		xSemaphoreGive(xBinarySemaphoreUSART2sendDD);
@@ -305,7 +305,7 @@ void write_mc_value(uint8_t *val, uint32_t p,uint8_t ln,uint8_t m)
 {
 	uint8_t i;
 
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
 	if (m==1)
 		for (i=0;i<ln;i++) 
 	  {
@@ -346,7 +346,7 @@ void write_mc_value(uint8_t *val, uint32_t p,uint8_t ln,uint8_t m)
 			ALG_global_value.mc_in_out.AO[p+i] = val[i*2+1]*0x100 + val[i*2];
 			ALG_global_value.mc_in_out.AO_Mask[(p+i)/8] |= (1 << (p+i)%8);
 		}
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
 }
 
 
@@ -354,21 +354,21 @@ uint8_t  get_mc_DO_byte(uint8_t  n)
 {
 	uint8_t i, b;
 	b=0;
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
 	for ( i=0; i<8; i++)
 	{
 		b |= ((ALG_global_value.mc_in_out.DO[(n+i)/8] >> (n+i)%8) & 1) << i;
 	}
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
   return b;
 }
 
 uint16_t  get_mc_AO_byte(uint8_t  n)
 {
 	uint16_t b;
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
 	b = ALG_global_value.mc_in_out.AO[n];
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
 	return b;
 }
 /*********
@@ -392,8 +392,8 @@ void Alg_write_data_to_buf_read(void)
 {
 	volatile uint32_t i;
 	
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
 	for (i=0; i<128; i++) 
 	{
 		if ((ALG_global_value.mc_in_out.DO[i/8] & (1 << i%8)) == (1 << i%8))
@@ -407,8 +407,8 @@ void Alg_write_data_to_buf_read(void)
 
 		mc_out_buf_read.AO[i] = ALG_global_value.mc_in_out.AO[i];
 	}
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
 }
 /***********************
 *
@@ -417,12 +417,12 @@ uint8_t  get_mc_DO_byte_from_buf(uint8_t  n)
 {
 	uint8_t i, b;
 	b=0;
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
 	for ( i=0; i<8; i++)
 	{
 		b |= ((mc_out_buf_read.DO[(n+i)/8] >> (n+i)%8) & 1) << i;
 	}
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
   return b;
 }
 /***********************
@@ -431,9 +431,9 @@ uint8_t  get_mc_DO_byte_from_buf(uint8_t  n)
 uint16_t  get_mc_AO_byte_from_buf(uint8_t  n)
 {
 	uint16_t b;
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
 	b = mc_out_buf_read.AO[n];
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
 	return b;
 }
 /***********************
@@ -444,8 +444,8 @@ void Alg_write_data_from_buf(void)
 {
 	volatile uint32_t i;
 
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
 	for (i=0; i<128; i++) 
 	{
 		if ((mc_in_out_buf.AD_Mask[i/8] & (1 << (i%8))) == (1 << (i%8)))
@@ -512,8 +512,8 @@ void Alg_write_data_from_buf(void)
 			mc_in_out_buf.IP_Mask[i/8] &= ~(1 << i%8);
 		}
 	}
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
 }
 
 /***********************
@@ -532,7 +532,7 @@ void write_mc_value_to_buf(uint8_t *val, uint32_t p, uint32_t s,uint8_t ln,uint8
 	uint32_t pv,pd;
 	floatbyte_type floatbyte;
 	
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
 	if (m==1)
 		for (i=0;i<ln;i++) {
 			mc_in_out_buf.AD[p+i] = (val[s*2 + i*2+1]*0x100 + val[s*2 + i*2])*adc_func_int2float.func_a[p+i]+adc_func_int2float.func_b[p+i];
@@ -602,7 +602,7 @@ void write_mc_value_to_buf(uint8_t *val, uint32_t p, uint32_t s,uint8_t ln,uint8
 			}
 			mc_in_out_buf.IP_Mask[pd/8] |= (1 << pd%8);
 		}
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
 }
 
 /***********************
@@ -614,7 +614,7 @@ void write_mc_value_lost_to_buf(uint32_t p,uint8_t ln,uint8_t m)
 {
 	uint8_t i;
 
-	///xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar_Buf, portMAX_DELAY );
 	if (m==1)
 		for (i=0;i<ln;i++) {
 			mc_in_out_buf.AD[p+i] = 0;
@@ -635,7 +635,7 @@ void write_mc_value_lost_to_buf(uint32_t p,uint8_t ln,uint8_t m)
 			mc_in_out_buf.AO[p+i] = 0;
 			mc_in_out_buf.AO_Mask[(p+i)/8] &= ~(1 << (p+i)%8);
 		}
-	///xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar_Buf);
 }
 /***********************
 *@
@@ -650,8 +650,8 @@ void write_mc_value_lost_to_buf(uint32_t p,uint8_t ln,uint8_t m)
 
 void Server_Data_in()
 {
-	//xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
-	//xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
+	xSemaphoreTake(xMutex_ALGBLOC_RW_DataVar, portMAX_DELAY );
+	xSemaphoreGive(xMutex_ALGBLOC_RW_DataVar);
 }
 
 void AlgCicleTimeInc(void)

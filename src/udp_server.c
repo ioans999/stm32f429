@@ -73,7 +73,7 @@ void vUDP_serv_recv(void * pvParameters)
 		if (err == ERR_OK)
     {
 			while(1)
-			{
+			{ 
 				err = netconn_recv(conn, &buf);
 				if (err == ERR_OK)
 				{

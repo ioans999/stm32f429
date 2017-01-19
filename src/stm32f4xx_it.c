@@ -49,6 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 extern xSemaphoreHandle s_xSemaphore;
 extern xSemaphoreHandle ETH_link_xSemaphore;
+extern xSemaphoreHandle xMutex_USART1_USART3_DmaSend;
 /* Private function prototypes -----------------------------------------------*/
 extern void xPortSysTickHandler(void); 
 /* Private functions ---------------------------------------------------------*/
@@ -219,6 +220,7 @@ void DMA2_Stream7_IRQHandler(void)
 			DMA_Cmd(DMA2_Stream7, DISABLE);
 			USART_ITConfig(USART6, USART_IT_TC, ENABLE);
 			DMA_ClearITPendingBit(DMA2_Stream7,DMA_IT_TC);
+			xSemaphoreGive(xMutex_USART1_USART3_DmaSend);
 		}
 		//RS-485  #1
 		if (!(DMA2_Stream7->CR & DMA_SxCR_CHSEL_0) && !(DMA2_Stream7->CR & DMA_SxCR_CHSEL_1) && (DMA2_Stream7->CR & DMA_SxCR_CHSEL_2))
@@ -228,6 +230,7 @@ void DMA2_Stream7_IRQHandler(void)
 			DMA_Cmd(DMA2_Stream7, DISABLE);
 			USART_ITConfig(USART1, USART_IT_TC, ENABLE);
 			DMA_ClearITPendingBit(DMA2_Stream7,DMA_IT_TC);
+			xSemaphoreGive(xMutex_USART1_USART3_DmaSend);
 		}
   }
 }
@@ -235,23 +238,13 @@ void DMA2_Stream7_IRQHandler(void)
 /****************************************
   RS-485  #1
 */
-void DMA1_Stream7_IRQHandler(void)
-{ 
-  if(DMA_GetITStatus(DMA1_Stream6, DMA_IT_TCIF6)!= RESET)
-  {
-		DMA_ITConfig(DMA1_Stream6,DMA_IT_TC,DISABLE );
-    DMA_Cmd(DMA1_Stream6, DISABLE);	
-		USART_ITConfig(USART2, USART_IT_TC, ENABLE);	
-		DMA_ClearITPendingBit(DMA1_Stream6,DMA_IT_TC);
-  }
-}
 
 void USART1_IRQHandler(void)
 {
 	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
 	{
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-		modbus_IRQ_n2(USART1->DR);
+		modbus_IRQ_n1(USART1->DR);
 	}
 	if (USART_GetITStatus(USART1, USART_IT_TC) != RESET)
 	{
@@ -365,7 +358,7 @@ void TIM6_DAC_IRQHandler(void)
 		timer_IRQ_n4();
 		if (tc > 9)
 		{
-			//AlgCicleTimeInc();
+			AlgCicleTimeInc();
 			tc=0;
 		} tc++;
 	  TIM_ClearITPendingBit(TIM6, TIM_IT_Update);

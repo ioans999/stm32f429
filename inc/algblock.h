@@ -2,6 +2,7 @@
 #define _ALGBLOCK_H_
 #include "stm32f4xx.h"
 
+#define   MEMORY_POINT_ALGBLOCK  0xC0000000
 
 void vAlg_block_Task(void * pvParameters);
 
@@ -17,4 +18,6 @@ void AlgCicleTimeInc(void);
 void AlgLostModbusPacket(void);
 void AlgLostModbusPacketU4(uint8_t n);
 void WriteCnfAdcFloat(uint16_t num, float a, float b);
+
+
 #endif
